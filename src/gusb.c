@@ -554,9 +554,10 @@ static int get_string_descriptor (struct gusb_device * device, unsigned char ind
   }
 
   struct usb_descriptor_header * descriptor = (struct usb_descriptor_header *)data;
+  unsigned char length = descriptor->bLength;
 
-  if (descriptor->bLength > ret) {
-    void * ptr = realloc(data, descriptor->bLength * sizeof(*data));
+  if (length > ret) {
+    void * ptr = realloc(data, length * sizeof(*data));
     if (ptr == NULL) {
       PRINT_ERROR_ALLOC_FAILED("realloc");
       free(data);
@@ -566,7 +567,7 @@ static int get_string_descriptor (struct gusb_device * device, unsigned char ind
     data = ptr;
 
     ret = libusb_control_transfer(device->devh, LIBUSB_ENDPOINT_IN,
-        LIBUSB_REQUEST_GET_DESCRIPTOR, (LIBUSB_DT_STRING << 8) | index, descriptors->langId0.wData[0], data, descriptor->bLength, DEFAULT_TIMEOUT);
+        LIBUSB_REQUEST_GET_DESCRIPTOR, (LIBUSB_DT_STRING << 8) | index, descriptors->langId0.wData[0], data, length, DEFAULT_TIMEOUT);
     if (ret < 0) {
       PRINT_ERROR_LIBUSB("libusb_control_transfer", ret);
       free(data);
